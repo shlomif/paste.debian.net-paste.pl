@@ -509,13 +509,13 @@ sub delete_comment ($) {
 =over 4
 
 Returns an entry from the database. Returns undef if the entry couldn't be found. Otherwise a hashref with the entry will be returned. Beware that the digest is included. You should not reveal this to externals, otherwise your entrys can be deleted.  
-This will not get entries marked as hidden. See get_hidden_paste if you want to retreive them. 
+This will not get entries marked as hidden. See get_hidden_paste if you want to retrieve them. 
 
 =over 4 
 
 =item B<id> 
 
-The id of the entry you want to retreive
+The id of the entry you want to retrieve
 
 =back 
 
@@ -563,7 +563,7 @@ Returns a hidden entry from the database. Returns undef if the entry couldn't be
 
 =item B<id> 
 
-The id of the entry you want to retreive
+The id of the entry you want to retrieve
 
 =back 
 
