@@ -25,6 +25,7 @@ use Digest::JHash qw(jhash);
 use Encode::Base58;
 
 use Carp;
+use Paste::Conf;
 
 use vars qw(@ISA @EXPORT);
 @ISA = qw(Exporter);
@@ -51,9 +52,15 @@ sub new {
     my $dbpass = $config->val( 'database', 'dbpassword' ) || '';
     my $base_url = $config->val( 'www', 'base_url' )
         || carp "base_url not specified in config";
+    my $driver = $config->val( 'database', 'driver' )
+        || carp "Database driver not specified in config";
+
+    my $dbi_dsn = Paste::Conf->get_db_conf_string(
+        {dbname => $dbname, driver => $driver,},
+    );
 
     my $dbh =
-        DBI->connect( "dbi:Pg:dbname=$dbname", $dbuser, $dbpass,
+        DBI->connect( $dbi_dsn , $dbuser, $dbpass,
         { RaiseError => 0, PrintError => 0 } )
         or croak "Could not connect to DB: " . $DBI::errstr;
 

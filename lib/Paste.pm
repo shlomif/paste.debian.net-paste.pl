@@ -29,6 +29,7 @@ use RPC::XML::Client;
 use Text::ExtractWords qw (words_list);
 use Text::Wrap;
 
+use Paste::Conf;
 
 use Carp;
 
@@ -57,9 +58,14 @@ sub new {
     my $dbpass = $config->val( 'database', 'dbpassword' ) || '';
     my $base_url = $config->val( 'www', 'base_url' )
         || carp "base_url not specified in config";
+    my $driver = $config->val( 'database', 'driver' )
+        || carp "Database driver not specified in config";
 
-    my $dbh =
-        DBI->connect( "dbi:Pg:dbname=$dbname", $dbuser, $dbpass,
+    my $dbi_dsn = Paste::Conf->get_db_conf_string(
+	    {dbname => $dbname, driver => $driver,},
+    );
+
+    my $dbh = DBI->connect( $dbi_dsn, $dbuser, $dbpass,
         { RaiseError => 0, PrintError => 0 } )
         or croak "Could not connect to DB: " . $DBI::errstr;
 

@@ -1,7 +1,13 @@
 #!/usr/bin/perl 
 
+use strict;
+use warnings;
+
 use DBI;
 use Config::IniFiles;
+
+use lib './lib';
+use Paste::Conf;
 
 my $config_file = 'paste.conf';
 
@@ -14,18 +20,24 @@ unless ($config) {
 
 my $dbname = $config->val( 'database', 'dbname' )
     || die "Databasename not specified in config";
+my $dbdriver = $config->val( 'database', 'driver' )
+    || die "Database driver not specified in config";
 my $dbuser = $config->val( 'database', 'dbuser' )
     || die "Databaseuser not specified in config";
 my $dbpass = $config->val( 'database', 'dbpassword' ) || '';
 
+my $dbi_dsn = Paste::Conf->get_db_conf_string(
+    {dbname => $dbname, driver => $dbdriver,},
+);
+
 my $dbh =
-    DBI->connect( "dbi:Pg:dbname=$dbname", $dbuser, $dbpass,
+    DBI->connect( $dbi_dsn, $dbuser, $dbpass,
     { RaiseError => 0, PrintError => 0 } )
     or die "Could not connect to DB: " . $DBI::errstr;
 
-$rows_affected = $dbh->do("DELETE FROM LANG");
+my $rows_affected = $dbh->do("DELETE FROM LANG");
 
-$sth = $dbh->prepare( '
+my $sth = $dbh->prepare( '
 	INSERT INTO lang ("desc") VALUES (?) 
 	' ) or die $dbh->errstr;
 

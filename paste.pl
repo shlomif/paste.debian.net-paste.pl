@@ -26,6 +26,7 @@ use CGI::Carp qw(fatalsToBrowser);
 use CGI::Cookie;
 use Digest::SHA1 qw (sha1_hex);
 use Paste;
+use Paste::Conf;
 use ShortURL;
 
 use subs qw(error);
@@ -51,6 +52,12 @@ my $dbname = $paste->get_config_key( 'database', 'dbname' )
 my $dbuser = $paste->get_config_key( 'database', 'dbuser' )
     || die "Databaseuser not specified";
 my $dbpass = $paste->get_config_key( 'database', 'dbpassword' ) || '';
+my $db_driver = $paste->get_config_key( 'database', 'driver' )
+    or die "Database driver not specified";
+
+my $dbi_dsn = Paste::Conf->get_db_conf_string(
+    {dbname => $dbname, driver => $driver,},
+);
 
 #config
 my $base_url   = $paste->get_config_key( 'www',      'base_url' );
@@ -98,7 +105,7 @@ sub add_shorturl {
     print_header();
     $template->process(
         'shorturl_info',
-        {   "dbname"     => "dbi:Pg:dbname=$dbname",
+        {   "dbname"     => $dbi_dsn,
             "dbuser"     => $dbuser,
             "dbpass"     => $dbpass,
             "base_url"   => $base_url,
@@ -198,7 +205,7 @@ sub print_delete {
         print_header();
         $template->process(
             'show_message',
-            {   "dbname"   => "dbi:Pg:dbname=$dbname",
+            {   "dbname"   => $dbi_dsn,
                 "dbuser"   => $dbuser,
                 "dbpass"   => $dbpass,
                 "title"    => "Entry $id deleted",
@@ -231,7 +238,7 @@ sub print_add_comment {
         print_header();
         $template->process(
             'show',
-            {   "dbname" => "dbi:Pg:dbname=$dbname",
+            {   "dbname" => $dbi_dsn,
                 "dbuser" => $dbuser,
                 "dbpass" => $dbpass,
                 "show"   => $paste_id,
@@ -260,7 +267,7 @@ sub print_template {
     print_header();
     $template->process(
         $tmpl,
-        {   "dbname"     => "dbi:Pg:dbname=$dbname",
+        {   "dbname"     => $dbi_dsn,
             "dbuser"     => $dbuser,
             "dbpass"     => $dbpass,
             "base_url"   => $base_url,
@@ -293,7 +300,7 @@ sub print_show {
 
     $template->process(
         $tmpl_name,
-        {   "dbname"   => "dbi:Pg:dbname=$dbname",
+        {   "dbname"   => $dbi_dsn,
             "dbuser"   => $dbuser,
             "dbpass"   => $dbpass,
             "show"     => $id,
@@ -423,7 +430,7 @@ sub print_paste {
     my $as_hidden = $cgi->param("as_hidden") ? 1 : 0;
     $template->process(
         'paste',
-        {   "dbname"    => "dbi:Pg:dbname=$dbname",
+        {   "dbname"    => $dbi_dsn,
             "dbuser"    => $dbuser,
             "dbpass"    => $dbpass,
             "status"    => $statusmessage,
@@ -441,7 +448,7 @@ sub error ($$) {
     print_header();
     $template->process(
         'show_message',
-        {   "dbname"   => "dbi:Pg:dbname=$dbname",
+        {   "dbname"   => $dbi_dsn,
             "dbuser"   => $dbuser,
             "dbpass"   => $dbpass,
             "title"    => $title,
