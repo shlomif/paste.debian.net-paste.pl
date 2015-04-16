@@ -1,0 +1,8 @@
+=encoding utf8
+
+=head1 The L<http://paste.debian.net/> Sources
+
+This repository contains the sources for the paste site at
+L<http://paste.debian.net/> .
+
+=cut
